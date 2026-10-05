@@ -1,0 +1,6 @@
+{
+  "name": "Al Hadid Academy",
+  "description": "Complete Academy Management System with Dual Admin, Quran & Book-wise progress tracking, fee receipts, reports, certificates, and parent portal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
