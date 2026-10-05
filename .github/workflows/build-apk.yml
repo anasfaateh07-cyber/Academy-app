@@ -26,6 +26,10 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Create dummy google-services.json for CI
+        run: |
+          echo '{"project_info":{"project_number":"123","project_id":"dummy"},"client":[{"client_info":{"mobilesdk_app_id":"1:123:android:dummy","android_client_info":{"package_name":"com.alhadid.academy.nasirabad"}},"oauth_client":[],"api_key":[{"current_key":"dummy"}],"services":{}}]}' > app/google-services.json
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug --no-daemon
 
