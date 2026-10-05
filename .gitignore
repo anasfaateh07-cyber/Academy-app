@@ -16,3 +16,9 @@
 local.properties
 .env
 debug.keystore
+# Al Hadid Academy - Real App Fixes
+app/google-services.json
+app/build/
+.gradle/
+*.apk
+.aistudio/
