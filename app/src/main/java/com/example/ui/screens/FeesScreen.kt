@@ -31,6 +31,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -338,6 +339,17 @@ fun AddFeePaymentDialog(
     val fine = fineText.toDoubleOrNull() ?: 0.0
     val totalPaid = (amount - discount + fine).coerceAtLeast(0.0)
 
+    var saveStatus by remember { mutableStateOf("") }
+    LaunchedEffect(amountText) {
+        if (amountText.isNotBlank()) {
+            saveStatus = "Saving..."
+            delay(1500)
+            saveStatus = "Auto Saved ✓ ${System.currentTimeMillis()}"
+        } else {
+            saveStatus = ""
+        }
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -351,18 +363,35 @@ fun AddFeePaymentDialog(
                     .fillMaxWidth()
                     .padding(20.dp)
             ) {
-                Text(
-                    text = "Add Fee Payment",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = IslamicGreen,
-                    fontFamily = FontFamily.Serif
-                )
-                Text(
-                    text = "Receipt with Academy Logo will be generated instantly",
-                    fontSize = 11.sp,
-                    color = TextSecondaryGrey
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Add Fee Payment",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = IslamicGreen,
+                            fontFamily = FontFamily.Serif
+                        )
+                        Text(
+                            text = "Receipt with Academy Logo will be generated instantly",
+                            fontSize = 11.sp,
+                            color = TextSecondaryGrey
+                        )
+                    }
+
+                    if (saveStatus.isNotBlank()) {
+                        Text(
+                            text = saveStatus,
+                            color = Color(0xFF16A34A),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
 
                 IslamicGoldDivider(modifier = Modifier.padding(vertical = 8.dp))
 

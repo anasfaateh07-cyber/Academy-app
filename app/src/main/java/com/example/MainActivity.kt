@@ -18,7 +18,8 @@ import com.example.ui.theme.MyApplicationTheme
 
 enum class AppScreen {
     SPLASH,
-    LOGIN,
+    AUTH,
+    WELCOME,
     ADMIN_DASHBOARD,
     PARENT_DASHBOARD
 }
@@ -43,22 +44,23 @@ class MainActivity : ComponentActivity() {
                             AppScreen.SPLASH -> {
                                 SplashScreen(
                                     onFinished = {
-                                        currentScreen = if (currentUser != null) {
-                                            if (currentUser?.role == UserRole.PARENT) {
-                                                AppScreen.PARENT_DASHBOARD
-                                            } else {
-                                                AppScreen.ADMIN_DASHBOARD
-                                            }
-                                        } else {
-                                            AppScreen.LOGIN
-                                        }
+                                        // Task 2: Mandatory Login/SignUp - no bypass directly to Home
+                                        currentScreen = AppScreen.AUTH
                                     }
                                 )
                             }
-                            AppScreen.LOGIN -> {
-                                LoginScreen(
+                            AppScreen.AUTH -> {
+                                AuthScreen(
                                     repository = repository,
-                                    onLoginSuccess = {
+                                    onAuthSuccess = {
+                                        // Task 4: After login, before Home dashboard, show WelcomeScreen
+                                        currentScreen = AppScreen.WELCOME
+                                    }
+                                )
+                            }
+                            AppScreen.WELCOME -> {
+                                WelcomeScreen(
+                                    onContinue = {
                                         val user = repository.currentUser.value
                                         currentScreen = if (user?.role == UserRole.PARENT) {
                                             AppScreen.PARENT_DASHBOARD
@@ -82,7 +84,7 @@ class MainActivity : ComponentActivity() {
                                     currentUser = user,
                                     onLogout = {
                                         repository.logout()
-                                        currentScreen = AppScreen.LOGIN
+                                        currentScreen = AppScreen.AUTH
                                     }
                                 )
                             }
@@ -100,7 +102,7 @@ class MainActivity : ComponentActivity() {
                                     currentUser = user,
                                     onLogout = {
                                         repository.logout()
-                                        currentScreen = AppScreen.LOGIN
+                                        currentScreen = AppScreen.AUTH
                                     }
                                 )
                             }

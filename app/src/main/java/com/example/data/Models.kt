@@ -58,10 +58,12 @@ data class FeeRecord(
     val fine: Double = 0.0,
     val totalPaid: Double,
     val due: Double = 0.0,
-    val status: String, // "Paid", "Pending", "Overdue"
+    val status: String, // "Paid", "Pending", "Overdue", "FREE"
     val paymentMethod: String = "Cash", // "Cash", "Easypaisa", "JazzCash"
     val paymentDate: String,
-    val receivedBy: String // "Anas Mustafa" or "Awais Mustafa"
+    val receivedBy: String, // "Anas Mustafa" or "Awais Mustafa"
+    val concessionType: String = "No Discount", // "No Discount", "50% Free", "100% Free - Yateem / Mustahiq"
+    val discountReason: String = "" // "Yateem / Hafiz / Staff Child"
 )
 
 data class AttendanceRecord(
@@ -86,7 +88,9 @@ data class QuranProgress(
     val remarks: String,
     val teacherName: String,
     val hasAudio: Boolean = false,
-    val audioDurationSec: Int = 0
+    val audioDurationSec: Int = 0,
+    val sabaqStatus: String = "Yaad", // "Yaad", "Kacha", "Pakka"
+    val audioPath: String = ""
 )
 
 data class BookProgress(

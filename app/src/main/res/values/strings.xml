@@ -2,4 +2,5 @@
     <string name="app_name">Al Hadid Academy</string>
     <string name="academy_location">Nasirabad Jatlan, Azad Kashmir</string>
     <string name="academy_tagline">Hifz | Nazra | Tajweed | Tuition | Computer</string>
+    <string name="default_web_client_id">267716910718-alhadid.apps.googleusercontent.com</string>
 </resources>

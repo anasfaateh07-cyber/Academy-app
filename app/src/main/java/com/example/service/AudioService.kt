@@ -71,6 +71,25 @@ object AudioService {
         }
     }
 
+    fun playAudioFile(context: Context, file: File, onCompletion: () -> Unit) {
+        stopPlaying()
+        try {
+            if (file.exists()) {
+                val player = MediaPlayer().apply {
+                    setDataSource(file.absolutePath)
+                    prepare()
+                    start()
+                    setOnCompletionListener { onCompletion() }
+                }
+                mediaPlayer = player
+            } else {
+                playAudio(context, onCompletion)
+            }
+        } catch (e: Exception) {
+            playAudio(context, onCompletion)
+        }
+    }
+
     fun stopPlaying() {
         try {
             mediaPlayer?.stop()

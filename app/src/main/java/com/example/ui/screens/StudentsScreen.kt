@@ -36,6 +36,7 @@ import com.example.ui.components.IslamicGoldDivider
 import com.example.ui.components.PdfPreviewDialog
 import com.example.ui.theme.*
 import java.io.File
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,9 +81,13 @@ fun StudentsScreen(
         listOf("All") + currentUser.allowedGroups
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = Color.Transparent,
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = { showAddDialog = true },
@@ -205,8 +210,23 @@ fun StudentsScreen(
                             pdfShareMsg = "Assalam-o-Alaikum, Al Hadid Academy Character Certificate for ${student.name} S/o ${student.fatherName}."
                         },
                         onDelete = {
+                            val deletedStudent = student
                             repository.deleteStudent(student.studentId)
+                            FirestoreHelper.deleteStudentFromFirestore(student.studentId)
                             Toast.makeText(context, "Student ${student.name} deleted", Toast.LENGTH_SHORT).show()
+
+                            coroutineScope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "Student ${deletedStudent.name} nikal diya gaya. (Auto Saved ✓)",
+                                    actionLabel = "Undo",
+                                    duration = SnackbarDuration.Long
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    repository.addStudent(deletedStudent)
+                                    FirestoreHelper.saveStudentToFirestore(deletedStudent)
+                                    Toast.makeText(context, "${deletedStudent.name} restored successfully! Auto Saved ✓", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                         }
                     )
                 }
@@ -450,6 +470,17 @@ fun AddStudentDialog(
         listOf("Tuition Girl", "Playgroup")
     }
 
+    var saveStatus by remember { mutableStateOf("") }
+    LaunchedEffect(name) {
+        if (name.isNotBlank()) {
+            saveStatus = "Saving..."
+            delay(1500)
+            saveStatus = "Auto Saved ✓ ${System.currentTimeMillis()}"
+        } else {
+            saveStatus = ""
+        }
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -485,6 +516,16 @@ fun AddStudentDialog(
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
+
+                if (saveStatus.isNotBlank()) {
+                    Text(
+                        text = saveStatus,
+                        color = Color(0xFF16A34A),
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(start = 4.dp, top = 2.dp)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 

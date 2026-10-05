@@ -559,6 +559,20 @@ class AcademyRepository {
         return false
     }
 
+    fun loginWithGoogle(displayName: String? = null, email: String? = null): Boolean {
+        val name = displayName?.takeIf { it.isNotBlank() } ?: "Teacher Anas Mustafa"
+        val userEmail = email?.takeIf { it.isNotBlank() } ?: "anas@alhadid.com"
+        _currentUser.value = CurrentUser(
+            role = UserRole.TEACHER_ANAS,
+            name = name,
+            email = userEmail,
+            phone = "+92 300 9876542",
+            isFullAdmin = true,
+            allowedGroups = listOf("All", "Hifz", "Nazra", "Tuition Boy", "Computer Course", "Tajweed", "Tuition Girl", "Playgroup")
+        )
+        return true
+    }
+
     fun logout() {
         _currentUser.value = null
     }

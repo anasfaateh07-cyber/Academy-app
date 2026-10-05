@@ -699,6 +699,121 @@ object PdfService {
         return file
     }
 
+    fun generateAttendanceReportPdf(
+        context: Context,
+        date: String,
+        groupName: String,
+        students: List<Student>,
+        attendanceMap: Map<String, String>
+    ): File? {
+        val document = PdfDocument()
+        val pageInfo = PdfDocument.PageInfo.Builder(PAGE_WIDTH, PAGE_HEIGHT, 1).create()
+        val page = document.startPage(pageInfo)
+        val canvas = page.canvas
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+
+        var currentY = drawLetterhead(canvas, context, "OFFICIAL ATTENDANCE REPORT")
+
+        // Report Meta Box
+        paint.color = colorLightGrey
+        canvas.drawRoundRect(RectF(40f, currentY, (PAGE_WIDTH - 40).toFloat(), currentY + 45f), 8f, 8f, paint)
+        paint.style = Paint.Style.STROKE
+        paint.color = colorGold
+        paint.strokeWidth = 1f
+        canvas.drawRoundRect(RectF(40f, currentY, (PAGE_WIDTH - 40).toFloat(), currentY + 45f), 8f, 8f, paint)
+
+        paint.style = Paint.Style.FILL
+        paint.color = colorTextDark
+        paint.textSize = 10.5f
+        paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+        paint.textAlign = Paint.Align.LEFT
+        canvas.drawText("Date: $date", 55f, currentY + 18f, paint)
+        canvas.drawText("Department / Class: $groupName", 55f, currentY + 34f, paint)
+
+        val total = students.size
+        val present = students.count { attendanceMap[it.studentId] == "Present" }
+        val absent = students.count { attendanceMap[it.studentId] == "Absent" }
+        val leave = students.count { attendanceMap[it.studentId] == "Leave" }
+
+        paint.color = colorIslamicGreen
+        canvas.drawText("Total: $total  |  Present: $present  |  Absent: $absent  |  Leave: $leave", 260f, currentY + 26f, paint)
+
+        currentY += 60f
+
+        // Table Header
+        paint.color = colorIslamicGreen
+        canvas.drawRoundRect(RectF(40f, currentY, (PAGE_WIDTH - 40).toFloat(), currentY + 24f), 4f, 4f, paint)
+        paint.color = Color.WHITE
+        paint.textSize = 10f
+        paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+        canvas.drawText("#", 50f, currentY + 16f, paint)
+        canvas.drawText("Student Name", 80f, currentY + 16f, paint)
+        canvas.drawText("Father Name", 230f, currentY + 16f, paint)
+        canvas.drawText("Class", 370f, currentY + 16f, paint)
+        canvas.drawText("Attendance Status", 460f, currentY + 16f, paint)
+
+        currentY += 28f
+
+        // Table Rows
+        students.forEachIndexed { index, student ->
+            if (currentY > PAGE_HEIGHT - 120f) return@forEachIndexed
+
+            val status = attendanceMap[student.studentId] ?: "Present"
+            paint.color = if (index % 2 == 0) Color.WHITE else Color.rgb(248, 250, 248)
+            canvas.drawRect(40f, currentY, (PAGE_WIDTH - 40).toFloat(), currentY + 20f, paint)
+
+            paint.color = colorTextDark
+            paint.textSize = 9.5f
+            paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.NORMAL)
+            canvas.drawText("${index + 1}", 50f, currentY + 14f, paint)
+            canvas.drawText(student.name, 80f, currentY + 14f, paint)
+            canvas.drawText(student.fatherName, 230f, currentY + 14f, paint)
+            canvas.drawText(student.className, 370f, currentY + 14f, paint)
+
+            when (status) {
+                "Present" -> {
+                    paint.color = Color.rgb(22, 163, 74)
+                    paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+                    canvas.drawText("✓ PRESENT", 460f, currentY + 14f, paint)
+                }
+                "Absent" -> {
+                    paint.color = Color.rgb(220, 38, 38)
+                    paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+                    canvas.drawText("✗ ABSENT", 460f, currentY + 14f, paint)
+                }
+                else -> {
+                    paint.color = Color.rgb(202, 138, 4)
+                    paint.typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+                    canvas.drawText("⚠ LEAVE", 460f, currentY + 14f, paint)
+                }
+            }
+            currentY += 20f
+        }
+
+        val signY = PAGE_HEIGHT - 90f
+        paint.color = Color.DKGRAY
+        paint.strokeWidth = 1f
+        canvas.drawLine(50f, signY, 200f, signY, paint)
+        canvas.drawLine((PAGE_WIDTH - 200).toFloat(), signY, (PAGE_WIDTH - 50).toFloat(), signY, paint)
+        paint.textSize = 9f
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText("Teacher Anas Mustafa", 125f, signY + 14f, paint)
+        canvas.drawText("Principal Awais Mustafa", (PAGE_WIDTH - 125).toFloat(), signY + 14f, paint)
+
+        document.finishPage(page)
+        val file = File(getPdfDir(context), "Attendance_${groupName.replace(" ", "_")}_$date.pdf")
+        return try {
+            val outputStream = FileOutputStream(file)
+            document.writeTo(outputStream)
+            document.close()
+            outputStream.close()
+            file
+        } catch (e: Exception) {
+            document.close()
+            null
+        }
+    }
+
     // Helper: Share PDF via WhatsApp or any sharing app
     fun sharePdf(context: Context, pdfFile: File, message: String, phoneNumber: String? = null) {
         try {

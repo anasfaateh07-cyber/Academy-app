@@ -16,8 +16,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -299,6 +301,9 @@ fun AdminHomeContent(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        // Task 3 & 4: New Welcome Card replacing dummy section
+        WelcomeCard(modifier = Modifier.fillMaxWidth())
+
         // Welcome Header
         Surface(
             shape = RoundedCornerShape(16.dp),
@@ -314,16 +319,19 @@ fun AdminHomeContent(
                     Column {
                         Text(
                             text = "Assalam-o-Alaikum,",
-                            color = IslamicGoldLight,
+                            color = Color(0xFFFFE082),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium
                         )
                         Text(
-                            text = currentUser.name,
-                            color = Color.White,
-                            fontSize = 19.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = FontFamily.Serif
+                            text = if (currentUser.name.isNotBlank()) currentUser.name else "Teacher Anas Mustafa",
+                            style = TextStyle(
+                                brush = Brush.horizontalGradient(
+                                    colors = listOf(Color(0xFFFFD700), Color.White, Color(0xFF00FF87))
+                                ),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 22.sp
+                            )
                         )
                     }
 
@@ -345,9 +353,9 @@ fun AdminHomeContent(
 
                 Text(
                     text = "Al Hadid Academy • Nasirabad Jatlan, Azad Kashmir",
-                    color = IslamicGoldLight,
-                    fontSize = 11.5.sp,
-                    fontWeight = FontWeight.SemiBold
+                    color = Color(0xFFFFEB3B),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))

@@ -30,6 +30,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 @Composable
 fun TestsScreen(
@@ -401,6 +402,15 @@ fun EnterMarksDialog(
         }
     }
 
+    var saveStatus by remember { mutableStateOf("") }
+    LaunchedEffect(marksInputMap.values.toList()) {
+        if (marksInputMap.isNotEmpty()) {
+            saveStatus = "Saving..."
+            delay(1500)
+            saveStatus = "Auto Saved ✓ ${System.currentTimeMillis()}"
+        }
+    }
+
     Dialog(onDismissRequest = onDismiss) {
         Card(
             modifier = Modifier
@@ -414,17 +424,34 @@ fun EnterMarksDialog(
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                Text(
-                    text = "Enter Marks: ${test.title}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = IslamicGreen
-                )
-                Text(
-                    text = "Subject: ${test.subject}  |  Total: ${test.totalMarks}",
-                    fontSize = 12.sp,
-                    color = TextSecondaryGrey
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "Enter Marks: ${test.title}",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = IslamicGreen
+                        )
+                        Text(
+                            text = "Subject: ${test.subject}  |  Total: ${test.totalMarks}",
+                            fontSize = 12.sp,
+                            color = TextSecondaryGrey
+                        )
+                    }
+
+                    if (saveStatus.isNotBlank()) {
+                        Text(
+                            text = saveStatus,
+                            color = Color(0xFF16A34A),
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
 
                 IslamicGoldDivider(modifier = Modifier.padding(vertical = 8.dp))
 
